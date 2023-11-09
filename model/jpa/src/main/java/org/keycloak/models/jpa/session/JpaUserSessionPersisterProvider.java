@@ -241,6 +241,7 @@ public class JpaUserSessionPersisterProvider implements UserSessionPersisterProv
 
         logger.debugf("Updated lastSessionRefresh of %d user sessions in realm '%s'", us, realm.getName());
     }
+    // findExpiredUserSessions
 
     @Override
     public void removeExpired(RealmModel realm) {
@@ -255,6 +256,13 @@ public class JpaUserSessionPersisterProvider implements UserSessionPersisterProv
         String offlineStr = offlineToString(true);
 
         logger.tracef("Trigger removing expired user sessions for realm '%s'", realm.getName());
+
+        em.createNamedQuery("findExpiredUserSessions", PersistentUserSessionEntity.class)
+                .setParameter("realmId", realm.getId())
+                .setParameter("lastSessionRefresh", expiredOffline)
+                .setParameter("offline", offlineStr)
+                .getResultStream()
+                .peek((x) -> logger.infof("Deleting session %s, realmId = %s, userId = %s", x.userSessionId, realm.getName(), x.userId));
 
         int cs = em.createNamedQuery("deleteExpiredClientSessions")
                 .setParameter("realmId", realm.getId())

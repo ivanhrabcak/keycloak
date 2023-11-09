@@ -39,7 +39,8 @@ public class ClearExpiredUserSessions implements ScheduledTask {
         session.sessions().removeAllExpired();
 
         long took = Time.currentTimeMillis() - currentTimeMillis;
-        logger.debugf("ClearExpiredUserSessions finished in %d ms", took);
+
+        logger.infof("ClearExpiredUserSessions finished in %d ms", took);
     }
 
 }
